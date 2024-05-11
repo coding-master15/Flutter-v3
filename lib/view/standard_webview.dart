@@ -22,12 +22,22 @@ class StandardWebView extends StatefulWidget {
 
 class _StandardWebViewAppState extends State<StandardWebView> {
 
+  WebViewController controller = WebViewController();
+
   @override
   void initState() {
     if (Platform.isAndroid) {
-      WebView.platform = SurfaceAndroidWebView();
+      //WebView.platform = SurfaceAndroidWebView();
     }
     super.initState();
+    controller.loadRequest(Uri.parse(widget.url));
+    controller.setJavaScriptMode(JavaScriptMode.unrestricted);
+    controller.setNavigationDelegate(NavigationDelegate(
+      onPageStarted: (webUrl) {
+        final url = Uri.parse(webUrl);
+        _processUrl(url);
+      },
+    ));
   }
 
   @override
@@ -53,14 +63,9 @@ class _StandardWebViewAppState extends State<StandardWebView> {
           child: Scaffold(
             key: _key,
             appBar: appBar,
-            body: WebView(
-              initialUrl: widget.url,
-              javascriptMode:  JavascriptMode.unrestricted,
+            body: WebViewWidget(
+              controller: controller,
               gestureRecognizers: gestureRecognizers,
-              onPageStarted: (webUrl) {
-                final url = Uri.parse(webUrl);
-                _processUrl(url);
-              },
             ),
           )
       );
